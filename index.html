@@ -189,6 +189,21 @@
     .tag-purple { background: #faf5ff; color: #7c3aed; }
     .tag-gray { background: #f9fafb; color: #6b7280; }
     .card-note { font-size: 12px; color: var(--text-muted); margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; line-height: 1.5; }
+    .card-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .card-link-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+    .card-link-btn.source { background: #eff6ff; color: #1d4ed8; }
+    .card-link-btn.source:hover { background: #dbeafe; }
+    .card-link-btn.video { background: #fff1f0; color: #c53030; }
+    .card-link-btn.video:hover { background: #ffe4e4; }
+    /* video list in modal */
+    .video-list { display: flex; flex-direction: column; gap: 8px; }
+    .video-item { display: flex; gap: 8px; align-items: center; }
+    .video-item input { flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); }
+    .video-item input:focus { outline: none; border-color: var(--primary); }
+    .video-remove { width: 28px; height: 28px; border-radius: 6px; border: none; background: #fff1f0; color: #c53030; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .video-remove:hover { background: #ffe4e4; }
+    .btn-add-video { margin-top: 8px; padding: 7px 14px; border-radius: 8px; border: 1.5px dashed var(--primary); background: var(--primary-light); color: var(--primary); font-size: 13px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+    .btn-add-video:hover { background: #dce8ff; }
     .empty-state {
       text-align: center;
       padding: 80px 20px;
@@ -416,7 +431,83 @@
     .toast.success { background: #166534; }
     .toast.error { background: #991b1b; }
 
-    /* ===== RESPONSIVE ===== */
+    /* ===== VIDEO PREVIEW MODAL ===== */
+    .video-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .video-modal-overlay.open { display: flex; }
+    .video-modal-title {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      text-align: center;
+    }
+    .video-modal-wrap {
+      width: 100%;
+      max-width: 900px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      background: #000;
+      position: relative;
+    }
+    .video-modal-wrap video, .video-modal-wrap iframe {
+      width: 100%;
+      display: block;
+    }
+    .video-modal-wrap iframe { min-height: 400px; }
+    .video-modal-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .video-modal-close:hover { background: rgba(0,0,0,0.85); }
+    .video-list-picker {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 900px;
+    }
+    .video-pick-btn {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .video-pick-btn:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.6); }
+    .video-pick-btn.active { background: var(--primary); border-color: var(--primary); }
+    .video-error {
+      color: #ff9999;
+      font-size: 14px;
+      text-align: center;
+      padding: 40px;
+    }
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: span 1; }
@@ -826,6 +917,22 @@
         </div>
       </div>
 
+      <!-- 房源链接 & 看房视频 -->
+      <div class="form-section">
+        <div class="form-section-title">🔗 房源链接 &amp; 看房视频</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>房源链接（如链家/贝壳/安居客等）</label>
+            <input type="url" id="f-source-url" placeholder="https://..." />
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <label style="font-size:13px;font-weight:500;display:block;margin-bottom:8px;">看房视频链接（可添加多个）</label>
+          <div class="video-list" id="videoList"></div>
+          <button class="btn-add-video" type="button" onclick="addVideoInput()">＋ 添加视频链接</button>
+        </div>
+      </div>
+
       <!-- 综合评分 -->
       <div class="form-section">
         <div class="form-section-title">⭐ 综合感受</div>
@@ -853,6 +960,16 @@
       <button class="btn btn-success" onclick="saveHouse()">💾 保存房源</button>
     </div>
   </div>
+</div>
+
+<!-- VIDEO PREVIEW MODAL -->
+<div class="video-modal-overlay" id="videoModal">
+  <div class="video-modal-title" id="videoModalTitle"></div>
+  <div class="video-modal-wrap" id="videoWrap">
+    <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+    <div id="videoContent"></div>
+  </div>
+  <div class="video-list-picker" id="videoPicker"></div>
 </div>
 
 <!-- TOAST -->
@@ -986,6 +1103,11 @@ function renderCard(h) {
       <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">🔌 ${appStr}</div>
       ${tags.length ? `<div class="card-tags">${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}</div>` : ''}
       ${h.note ? `<div class="card-note">📝 ${h.note.slice(0,60)}${h.note.length>60?'…':''}</div>` : ''}
+      ${(h.sourceUrl || (h.videos && h.videos.length)) ? `
+      <div class="card-links">
+        ${h.sourceUrl ? `<a class="card-link-btn source" href="${h.sourceUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🏠 房源链接</a>` : ''}
+        ${(h.videos || []).map((v,i) => `<button class="card-link-btn video" onclick="event.stopPropagation();openVideoModal('${h.name || ''}', ${JSON.stringify(h.videos||[]).replace(/"/g,'&quot;')}, ${i})">🎬 视频${i+1}</button>`).join('')}
+      </div>` : ''}
       <div class="compare-check">
         <input type="checkbox" id="cmp-${h.id}" ${checked ? 'checked' : ''} onchange="toggleCompare('${h.id}', this.checked)" />
         <label for="cmp-${h.id}" style="cursor:pointer;">加入对比</label>
@@ -1077,6 +1199,8 @@ function renderCompare() {
     { label: '🐾 养宠物', key: h => h.pet || '–' },
     { label: '🍳 允许做饭', key: h => h.cooking || '–' },
     { label: '⭐ 综合满意度', key: h => h.starOverall ? '★'.repeat(h.starOverall) + '☆'.repeat(5-h.starOverall) : '–', starKey: 'starOverall', best: 'max' },
+    { label: '🔗 房源链接', key: h => h.sourceUrl ? `<a href="${h.sourceUrl}" target="_blank" rel="noopener" style="color:var(--primary)">查看</a>` : '–' },
+    { label: '🎬 看房视频', key: h => (h.videos && h.videos.length) ? h.videos.map((v,i) => `<button onclick="openVideoModal('${(h.name||'').replace(/'/g,"\\'")}', ${JSON.stringify(h.videos||[]).replace(/"/g,'&quot;')}, ${i})" style="background:none;border:none;color:#c53030;cursor:pointer;font-size:13px;margin-right:6px;text-decoration:underline;padding:0">视频${i+1}</button>`).join('') : '–' },
     { label: '📝 备注', key: h => h.note || '–' },
   ];
 
@@ -1151,11 +1275,13 @@ function clearForm() {
     'f-area','f-layout','f-floor','f-total-floor','f-direction','f-condition',
     'f-metro','f-metro-line','f-commute','f-noise','f-supermarket','f-dining',
     'f-medical','f-security','f-parking','f-building-age','f-min-lease',
-    'f-pet','f-cooking','f-noise','f-note'];
+    'f-pet','f-cooking','f-noise','f-note','f-source-url'];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  // clear video list
+  document.getElementById('videoList').innerHTML = '';
   document.querySelectorAll('#applianceGrid input[type=checkbox]').forEach(cb => {
     cb.checked = false;
     cb.closest('.appliance-item').classList.remove('checked');
@@ -1174,6 +1300,10 @@ function fillForm(h) {
   set('f-medical', h.medical); set('f-security', h.security); set('f-parking', h.parking);
   set('f-building-age', h.buildingAge); set('f-min-lease', h.minLease);
   set('f-pet', h.pet); set('f-cooking', h.cooking); set('f-note', h.note);
+  set('f-source-url', h.sourceUrl);
+  // fill video list
+  document.getElementById('videoList').innerHTML = '';
+  (h.videos || []).forEach(v => addVideoInput(v));
 
   // appliances
   document.querySelectorAll('#applianceGrid input[type=checkbox]').forEach(cb => {
@@ -1208,6 +1338,8 @@ function saveHouse() {
     medical: getStr('f-medical'), security: getStr('f-security'), parking: getStr('f-parking'),
     buildingAge: getNum('f-building-age'), minLease: getNum('f-min-lease'),
     pet: getStr('f-pet'), cooking: getStr('f-cooking'), note: getStr('f-note'),
+    sourceUrl: getStr('f-source-url'),
+    videos: Array.from(document.querySelectorAll('#videoList .video-item input')).map(i => i.value.trim()).filter(Boolean),
     appliances,
     starTraffic: stars.traffic, starAppliance: stars.appliance, starLight: stars.light,
     starAround: stars.around, starGreen: stars.green, starLandlord: stars.landlord, starOverall: stars.overall,
@@ -1323,6 +1455,100 @@ function showToast(msg, type = '') {
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+document.getElementById('videoModal').addEventListener('click', function(e) {
+  if (e.target === this) closeVideoModal();
+});
+
+// ============================================================
+// VIDEO PREVIEW MODAL
+// ============================================================
+function openVideoModal(houseName, videos, startIdx = 0) {
+  const modal = document.getElementById('videoModal');
+  const titleEl = document.getElementById('videoModalTitle');
+  const wrapEl = document.getElementById('videoWrap');
+  const pickerEl = document.getElementById('videoPicker');
+
+  titleEl.textContent = houseName ? `📹 ${houseName} — 看房视频` : '📹 看房视频';
+  wrapEl.querySelector('.video-modal-close').onclick = closeVideoModal;
+
+  // Video picker tabs (if multiple)
+  if (videos && videos.length > 1) {
+    pickerEl.innerHTML = videos.map((v, i) =>
+      `<button class="video-pick-btn${i === startIdx ? ' active' : ''}" onclick="renderVideo('${v.replace(/'/g,"\\'")}', ${i})">🎬 视频${i+1}</button>`
+    ).join('');
+    pickerEl.style.display = 'flex';
+  } else {
+    pickerEl.style.display = 'none';
+  }
+
+  modal.classList.add('open');
+  renderVideo(videos[startIdx], startIdx);
+}
+
+function renderVideo(url, idx) {
+  const contentEl = document.getElementById('videoContent');
+  // Update active tab
+  document.querySelectorAll('.video-pick-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+
+  if (!url) {
+    contentEl.innerHTML = '<div class="video-error">⚠️ 链接为空</div>';
+    return;
+  }
+
+  const lower = url.toLowerCase();
+
+  // Direct video file
+  if (/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(lower)) {
+    contentEl.innerHTML = `<video controls autoplay style="max-height:70vh"><source src="${url}" />您的浏览器不支持视频播放</video>`;
+    return;
+  }
+
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    contentEl.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="height:500px;border:none"></iframe>`;
+    return;
+  }
+
+  // Bilibili
+  const bvMatch = url.match(/bilibili\.com\/video\/([a-zA-Z0-9]+)/);
+  if (bvMatch) {
+    contentEl.innerHTML = `<iframe src="https://player.bilibili.com/player.html?bvid=${bvMatch[1]}&autoplay=1" allow="autoplay; fullscreen" style="height:500px;border:none"></iframe>`;
+    return;
+  }
+
+  // Douyin
+  if (url.includes('douyin.com') || url.includes('v.douyin.com')) {
+    const idMatch = url.match(/video\/(\d+)/) || url.match(/v\.douyin\.com\/([a-zA-Z0-9]+)/);
+    const embedId = idMatch ? idMatch[1] : encodeURIComponent(url);
+    contentEl.innerHTML = `<iframe src="https://www.iesdouyin.com/share/video/${embedId}/" allow="autoplay; fullscreen" style="height:500px;border:none"></iframe>`;
+    return;
+  }
+
+  // WeChat video / others — try as iframe
+  contentEl.innerHTML = `<div style="background:#000;height:500px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+    <div style="color:#888;font-size:14px;text-align:center;padding:0 20px;">无法直接播放此链接，将尝试在新窗口打开</div>
+    <button onclick="window.open('${url.replace(/'/g,"\\'")}','_blank')" style="padding:10px 24px;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">👉 在新窗口打开</button>
+  </div>`;
+}
+
+function closeVideoModal() {
+  document.getElementById('videoModal').classList.remove('open');
+  document.getElementById('videoContent').innerHTML = '';
+}
+
+// ============================================================
+// VIDEO INPUT
+// ============================================================
+function addVideoInput(val = '') {
+  const list = document.getElementById('videoList');
+  const item = document.createElement('div');
+  item.className = 'video-item';
+  item.innerHTML = `<input type="url" placeholder="https://... （支持任意视频链接）" value="${val.replace(/"/g,'&quot;')}" /><button class="video-remove" type="button" onclick="this.parentElement.remove()" title="删除">✕</button>`;
+  list.appendChild(item);
+}
 
 // ============================================================
 // INIT
